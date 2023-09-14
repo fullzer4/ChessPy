@@ -16,7 +16,10 @@ MAX_FPS = 15
 IMAGES = {}
 
 '''
-
+Funcao para carregar imagens da pecas
+loadImages():
+    pieces = [ "pecas do tabuleiro" ]
+    loop para carrega a imagem e botar na escala certa e carregar no tabuleiro
 '''
 
 def loadImages():
@@ -25,7 +28,18 @@ def loadImages():
         IMAGES[piece] = p.transform.scale(p.image.load(f'Chess/Imgs/{piece}.png'), (SQ_SIZE, SQ_SIZE))
     
 '''
-
+Funcao para iniciar o tabuleiro
+main():
+    iniciar pygame
+    inicar a tela
+    iniciar o relogio
+    setar o fundo como branco
+    iniciar a engine do jogo
+    carregar as imagens
+    loop para rodar o jogo:
+        desenhar o tabuleiro do jogo
+        definir o FPS para futuras animacoes
+        mostrar na tela
 '''
 
 def main():
@@ -36,11 +50,32 @@ def main():
     gs = ChessEngine.GameState()
     loadImages()
     running = True
+    sqSelected = ()
+    playerClicks = []
     while running: 
         for e in p.event.get():
             if e.type == p.QUIT:
                 running= False
-        
+            elif e.type == p.MOUSEBUTTONDOWN:
+                location = p.mouse.get_pos()
+                col = location[0] // SQ_SIZE
+                row = location[1] // SQ_SIZE
+                if 0 <= col < 8 and 0 <= row < 8:
+                    if sqSelected == (row, col):
+                        sqSelected = ()
+                        playerClicks = []
+                    else:
+                        sqSelected = (row, col)
+                        playerClicks.append(sqSelected)
+                    if len(playerClicks) == 2:
+                        move = ChessEngine.Move(playerClicks[0], playerClicks[1], gs.board)
+                        print(move.getChessNotation())
+                        gs.makeMove(move)
+                        sqSelected = ()
+                        playerClicks = []
+
+                    
+                
         drawGameState(screen, gs)
         clock.tick(MAX_FPS)
         p.display.flip()
